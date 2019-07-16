@@ -2236,16 +2236,16 @@ def list_comments(prefix: str, *, is_endmarker: bool) -> List[ProtoComment]:
     ignored_lines = 0
     prefixlines = prefix.split("\n")
 
-    if ((len(prefixlines) >= 3) and
-        prefixlines[0].startswith("#!") and
-        prefixlines[1].strip() == "#{" and
-        prefixlines[-1].strip() == "}#"):
+    prefixlines_fmt = [l for l in prefixlines if l != '']
+    if ((len(prefixlines_fmt) >= 3) and
+        prefixlines_fmt[0].startswith("#!") and
+        prefixlines_fmt[1].strip() == "#{" and
+        prefixlines_fmt[-1].strip() == "#}"):
         # skip reformatting nonstandard multiline shebangs.
         skip_reformatting_comment = True
     else:
         skip_reformatting_comment = False
-    
-    
+
     for index, line in enumerate(prefixlines):
         consumed += len(line) + 1  # adding the length of the split '\n'
         line = line.lstrip()
@@ -2263,12 +2263,12 @@ def list_comments(prefix: str, *, is_endmarker: bool) -> List[ProtoComment]:
             comment_type = token.COMMENT  # simple trailing comment
         else:
             comment_type = STANDALONE_COMMENT
-        
+
         if skip_reformatting_comment:
             comment = line
         else:
             comment = make_comment(line)
-        
+
         result.append(
             ProtoComment(
                 type=comment_type, value=comment, newlines=nlines, consumed=consumed
